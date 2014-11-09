@@ -25,19 +25,18 @@ void fill_cities_with_zeros(QStandardItemModel* model, const int& size)
 
 void change_number_of_cities(QStandardItemModel* city_data, const int& size)
 {
-
+    int size_change=abs(city_data->rowCount()-size);
     // increase numbe of cities
-    while (size > city_data->rowCount())   // it doesn't matter what I take, because number of rows == number of columns
+    if (size > city_data->rowCount())   // it doesn't matter what I take, because number of rows == number of columns
     {
-        city_data->insertRow(city_data->rowCount());
-        city_data->insertColumn(city_data->columnCount());
+        city_data->insertRows(city_data->rowCount()-1,size_change);
+        city_data->insertColumns(city_data->columnCount()-1,size_change);
+//        city_data->insertRow(city_data->rowCount());
+//        city_data->insertColumn(city_data->columnCount());
     }
-
-
-    while (size < city_data->rowCount())   // it doesn;t matter what I take number of rows == number of columns
-    {
-        city_data->removeRow(city_data->rowCount()-1);
-        city_data->removeColumn(city_data->columnCount()-1);
+    if(size<city_data->rowCount()){
+        city_data->removeRows(size-1,size_change);
+        city_data->removeColumns(size-1,size_change);
     }
 
 
