@@ -6,6 +6,8 @@
 #include <QStandardItemModel>
 #include <QFileDialog>
 
+// we are on github, hell yea!!!
+
 namespace Ui {
 class MainWindow;
 }
