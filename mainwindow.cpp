@@ -33,14 +33,13 @@ void change_number_of_cities(QStandardItemModel* city_data, const int& size)
         city_data->insertColumn(city_data->columnCount());
     }
 
-    /*
-    // !!!!!!!!!!!!!!1
+
     while (size < city_data->rowCount())   // it doesn;t matter what I take number of rows == number of columns
     {
-        city_data->removeRow(city_data->rowCount());
-        city_data->removeColumn(city_data->columnCount());
+        city_data->removeRow(city_data->rowCount()-1);
+        city_data->removeColumn(city_data->columnCount()-1);
     }
-    */
+
 
 }
 
