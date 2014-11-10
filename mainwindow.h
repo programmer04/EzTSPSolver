@@ -5,8 +5,10 @@
 #include <QMessageBox>
 #include <QStandardItemModel>
 #include <QFileDialog>
+#include <QTime>
+#include <QTextStream>
 
-// we are on github, hell yea!!!
+
 
 namespace Ui {
 class MainWindow;
@@ -23,7 +25,7 @@ public:
 private slots:
 
     // menubar
-    void on_actionAbout_EzTSPSolver_2_triggered();
+    void on_actionAbout_EzTSPSolver_triggered();
 
     void on_actionTask_triggered();
 
@@ -40,17 +42,22 @@ private slots:
     // ######################################
 
 
-    // comboboxes
-    void on_comboBox_nuber_of_vertices_currentIndexChanged(const QString &arg1);
-
+    // combobox
     void on_comboBox_alghoritm_currentIndexChanged(const QString &arg1);
-
     // #####################################
+
+    // spinbox
+    void on_spinBox_number_of_vertices_valueChanged(int arg1);
+    // #####################################
+
+
 
     // buttons
     void on_pushButton_random_clicked();
 
     void on_pushButton_solve_clicked();
+
+
 
 private:
     Ui::MainWindow *ui;
