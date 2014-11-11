@@ -22,22 +22,31 @@ void MainWindow::disable_editing_item(QStandardItem* item)
 }
 
 
-// slow for 1 000 of cells
-void MainWindow::fill_new_rows_and_columns_with_zeros(QStandardItemModel* city_data, int old_size)
+
+void MainWindow::fill_new_rows_and_columns_with_zeros(QStandardItemModel* city_data, const int& old_size)
 {
 
    int desired_size = city_data->rowCount();    // actual size of QStandardItemModel
 
-//    while (old_size < desired_size) {
-    for(int row=0; row<desired_size;++row)
+
+    for(int row = 0; row < desired_size; ++row)
+    {
         for (int column = 0; column < desired_size; ++column)
-            if(!(row<old_size and column<old_size)){
+
+            if(!(row < old_size && column < old_size)){
+
              QModelIndex index = city_data->index(row, column, QModelIndex());
              city_data->setData(index, 0);
 
-             if (column == old_size)
+             if (column == row) // if on diagonal
                  disable_editing_item(city_data->itemFromIndex(index)); // disable editing diagonal
+
             }
+
+    }
+
+
+
 }
 
 
@@ -48,21 +57,20 @@ void MainWindow::fill_cities_with_randoms(QStandardItemModel* city_data, const i
     int size = city_data->rowCount();
 
     for (int i = 0; i < size; ++i) {
+
         for (int j = 0; j < size; ++j) {
+
 
             QModelIndex index = city_data->index(i, j, QModelIndex());
 
 
-            if (i == j) // put zeros on diagonal
+            if (i == j) // if on diagonal
             {
-                city_data->setData(index, 0);
-            }
-            else    // put randoms
-            {
-                city_data->setData(index, get_random_number(low, high));
+               continue;    // because we've already zeros
             }
 
 
+            city_data->setData(index, get_random_number(low, high));    // put randoms
 
         }
     }
@@ -103,7 +111,9 @@ void MainWindow::save(const QString& name_of_file, const QStandardItemModel* dat
 
         int size = data_to_save->rowCount();
 
-        // I haven't got smarter idea, but it's working efficiently
+        output << QString::number(size) << "\n";    // number of vertices
+
+        //  graph's adjacency matrix
         for (int i = 0; i < size; ++i) {
 
             for (int j = 0; j < size; ++j) {

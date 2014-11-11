@@ -73,7 +73,7 @@ private:
 
     void disable_editing_item(QStandardItem* item);
 
-    void fill_new_rows_and_columns_with_zeros(QStandardItemModel* city_data, int old_size);
+    void fill_new_rows_and_columns_with_zeros(QStandardItemModel* city_data, const int &old_size);
 
     void fill_cities_with_randoms(QStandardItemModel* city_data, const int& low, const int& high);
 
