@@ -7,7 +7,7 @@
 #include <QFileDialog>
 #include <QTime>
 #include <QTextStream>
-#include <QtCore>
+
 
 
 namespace Ui {
@@ -47,7 +47,7 @@ private slots:
     // #####################################
 
     // spinbox
-    void on_spinBox_number_of_vertices_valueChanged(int arg1);
+   // void on_spinBox_number_of_vertices_valueChanged(int arg1);
     // #####################################
 
 
@@ -58,6 +58,8 @@ private slots:
     void on_pushButton_solve_clicked();
 
 
+
+    void on_spinBox_number_of_vertices_editingFinished();
 
 private:
 

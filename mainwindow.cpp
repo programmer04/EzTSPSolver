@@ -273,14 +273,17 @@ void MainWindow::on_comboBox_alghoritm_currentIndexChanged(const QString &arg1)
 
 
 // spinbox
+/*  change immediatelly
 void MainWindow::on_spinBox_number_of_vertices_valueChanged(int arg1)
 {
+
     int old_size = city_data->rowCount();
 
     change_number_of_cities(city_data, arg1);
     fill_new_rows_and_columns_with_zeros(city_data, old_size);
 
 }
+*/
 
 // ##########################################################
 
@@ -299,4 +302,15 @@ void MainWindow::on_pushButton_solve_clicked()
 
 }
 
+// spinbox
+// you have to accept changes by pressing enter (avoid bug when decrease fill with randoms tab from 100 to 50)
+// in other case it's change to size five and next to 50 so you have zeros in some rows and columns
+void MainWindow::on_spinBox_number_of_vertices_editingFinished()
+{
+    int old_size = city_data->rowCount();
 
+    int new_size = ui->spinBox_number_of_vertices->value();
+
+    change_number_of_cities(city_data, new_size);
+    fill_new_rows_and_columns_with_zeros(city_data, old_size);
+}
