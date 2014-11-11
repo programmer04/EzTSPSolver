@@ -26,37 +26,18 @@ void MainWindow::disable_editing_item(QStandardItem* item)
 void MainWindow::fill_new_rows_and_columns_with_zeros(QStandardItemModel* city_data, int old_size)
 {
 
-   int actual_size = city_data->rowCount();    // actual size of QStandardItemModel
+   int desired_size = city_data->rowCount();    // actual size of QStandardItemModel
 
-    while (old_size < actual_size) {
+//    while (old_size < desired_size) {
+    for(int row=0; row<desired_size;++row)
+        for (int column = 0; column < desired_size; ++column)
+            if(!(row<old_size and column<old_size)){
+             QModelIndex index = city_data->index(row, column, QModelIndex());
+             city_data->setData(index, 0);
 
-        for (int i = 0; i < actual_size; ++i) {
-
-
-             // fill new rows with zeros
-             QModelIndex index = city_data->index(old_size, i, QModelIndex());
-             city_data->setData(index, 0);  // set 0 into cell
-
-             if (i == old_size) // if on diagonal
-             {
+             if (column == old_size)
                  disable_editing_item(city_data->itemFromIndex(index)); // disable editing diagonal
-
-                 continue;  // we skip rest of for loop, because it is the same cell for row and column
-             }
-
-
-             // fill new columns with zeros
-             index = city_data->index(i, old_size, QModelIndex());
-             city_data->setData(index, 0);  // set 0 into cell
-
-        }
-
-        old_size++;
-
-
-   }
-
-
+            }
 }
 
 
