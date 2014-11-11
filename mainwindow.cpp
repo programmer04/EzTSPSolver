@@ -2,63 +2,66 @@
 #include "ui_mainwindow.h"
 
 
-const int MIN_NUMBER_OF_VERTICES = 3;
-const int MAX_NUMBER_OF_VERTICES = 1000;
-const int MIN_LENGTH_OF_PATH = 1;
-const int MAX_LENGTH_OF_PATH = 100;
 
-bool FIRST_USE_OF_SPINBOX = true;  // variable, which I have to use in spinbox (in other case program was crashed)
 
-// usefull functions
+// private functions
 
 // return random number from a specific range
-int get_random_number(const int& low, const int& high)
+int MainWindow::get_random_number(const int& low, const int& high)
 {
     return qrand() % ((high + 1) - low) + low;
 }
 
 
-// this function is only use to put to each cell the same number
-void fill_cities_with_number(QStandardItemModel* city_data, const int& number)
+// disable edititing cell in QStandardItemModel (QTableView)
+void MainWindow::disable_editing_item(QStandardItem* item)
 {
-    // it doesn't matter what I take, because number of rows == number of columns
-    int size = city_data->rowCount();
-
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-
-            QModelIndex index = city_data->index(i, j, QModelIndex());
-            city_data->setData(index, number);
-        }
-    }
+    Qt::ItemFlags flags = item->flags();
+    flags &= ~Qt::ItemIsEditable;   // putting mask (with nagation) on flags
+    item->setFlags(flags);
 }
 
-// TO DO (doesn't work)
-void fill_new_rows_and_columns_with_zeros(QStandardItemModel* city_data, const int& size)
-{
-    int first_index = city_data->rowCount() + 1;
-    int last_index = size - 1;
-
-    int size_change = abs(city_data->rowCount() - size);
-
-    //while (first_index != last_index) {
-
-        for (int j = 0; j < size; ++j) {
-
-
-             QModelIndex index = city_data->index(first_index, j, QModelIndex());
-             city_data->setData(index, 0);
-
-        }
-
-      //  last_index--;
-   //}
-
-
-}
 
 // slow for 1 000 of cells
-void fill_cities_with_randoms(QStandardItemModel* city_data, const int& low, const int& high)
+void MainWindow::fill_new_rows_and_columns_with_zeros(QStandardItemModel* city_data, int old_size)
+{
+
+   int actual_size = city_data->rowCount();    // actual size of QStandardItemModel
+
+    while (old_size < actual_size) {
+
+        for (int i = 0; i < actual_size; ++i) {
+
+
+             // fill new rows with zeros
+             QModelIndex index = city_data->index(old_size, i, QModelIndex());
+             city_data->setData(index, 0);  // set 0 into cell
+
+             if (i == old_size) // if on diagonal
+             {
+                 disable_editing_item(city_data->itemFromIndex(index)); // disable editing diagonal
+
+                 continue;  // we skip rest of for loop, because it is the same cell for row and column
+             }
+
+
+             // fill new columns with zeros
+             index = city_data->index(i, old_size, QModelIndex());
+             city_data->setData(index, 0);  // set 0 into cell
+
+        }
+
+        old_size++;
+
+
+   }
+
+
+}
+
+
+// slow for 1 000 of cells
+void MainWindow::fill_cities_with_randoms(QStandardItemModel* city_data, const int& low, const int& high)
 {
     // it doesn't matter what I take, because number of rows == number of columns
     int size = city_data->rowCount();
@@ -67,28 +70,38 @@ void fill_cities_with_randoms(QStandardItemModel* city_data, const int& low, con
         for (int j = 0; j < size; ++j) {
 
             QModelIndex index = city_data->index(i, j, QModelIndex());
-            city_data->setData(index, get_random_number(low, high));
+
+
+            if (i == j) // put zeros on diagonal
+            {
+                city_data->setData(index, 0);
+            }
+            else    // put randoms
+            {
+                city_data->setData(index, get_random_number(low, high));
+            }
+
+
+
         }
     }
 }
 
 
-
-
-void change_number_of_cities(QStandardItemModel* city_data, const int& new_size)
+void MainWindow::change_number_of_cities(QStandardItemModel* city_data, const int& new_size)
 {
 
     // it doesn't matter what I take, because number of rows == number of columns
     int old_size = city_data->rowCount();
 
 
-    int size_change=abs(city_data->rowCount() - new_size);
+    int size_change = abs(old_size - new_size);
 
 
     if (new_size > old_size)   // increase number of cities
     {
-        city_data->insertRows(city_data->rowCount(), size_change);
-        city_data->insertColumns(city_data->columnCount(), size_change);
+        city_data->insertRows(old_size, size_change);
+        city_data->insertColumns(old_size, size_change);
 
     }else if(new_size < old_size)  // decrease number of cities
     {
@@ -99,7 +112,7 @@ void change_number_of_cities(QStandardItemModel* city_data, const int& new_size)
 }
 
 
-void save(const QString& name_of_file, const QStandardItemModel* data_to_save)
+void MainWindow::save(const QString& name_of_file, const QStandardItemModel* data_to_save)
 {
     QFile file(name_of_file);
 
@@ -109,7 +122,7 @@ void save(const QString& name_of_file, const QStandardItemModel* data_to_save)
 
         int size = data_to_save->rowCount();
 
-        // I haven't got smarter idea, but it's working
+        // I haven't got smarter idea, but it's working efficiently
         for (int i = 0; i < size; ++i) {
 
             for (int j = 0; j < size; ++j) {
@@ -132,7 +145,7 @@ void save(const QString& name_of_file, const QStandardItemModel* data_to_save)
 
 
 // TO DO
-void load(const QString& name_of_file, QStandardItemModel* receiver)
+void MainWindow::load(const QString& name_of_file, QStandardItemModel* receiver)
 {
     QFile file(name_of_file);
 
@@ -162,16 +175,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
 
-    ui->setupUi(this);
-
-    // set default and min / max values
-    ui->spinBox_number_of_vertices->setRange(3, MAX_NUMBER_OF_VERTICES);
-
     // create model to store length of paths beetwen cities
     city_data = new QStandardItemModel(MIN_NUMBER_OF_VERTICES, MIN_NUMBER_OF_VERTICES, this);   // default size
-
-    fill_cities_with_number(city_data, 0); // default value zero
-    ui->tableView_task->setModel(city_data);    // connect data with model view
+    fill_new_rows_and_columns_with_zeros(city_data, 0);    // fill new model with default value of zero
 
 
     // set the random number generator
@@ -179,7 +185,10 @@ MainWindow::MainWindow(QWidget *parent) :
     qsrand((uint)time.msec());
 
 
-
+    // setings properties of ui
+    ui->setupUi(this);
+    ui->spinBox_number_of_vertices->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);    // set default and min/max values
+    ui->tableView_task->setModel(city_data);    // connect data with ModelView
 
 }
 
@@ -188,7 +197,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete city_data;   // probably it isn't necessary because Qt do it
+    // delete city_data;   // probably it isn't necessary because Qt do it with deleting ui
 }
 
 // ################################################################
@@ -275,18 +284,10 @@ void MainWindow::on_comboBox_alghoritm_currentIndexChanged(const QString &arg1)
 // spinbox
 void MainWindow::on_spinBox_number_of_vertices_valueChanged(int arg1)
 {
+    int old_size = city_data->rowCount();
 
-
-    if (!FIRST_USE_OF_SPINBOX) // without this condition program crashed
-    {
     change_number_of_cities(city_data, arg1);
-    fill_new_rows_and_columns_with_zeros(city_data, arg1);
-    }
-
-
-
-    FIRST_USE_OF_SPINBOX = false;  // set false, because we use this function after launch the program
-
+    fill_new_rows_and_columns_with_zeros(city_data, old_size);
 
 }
 
