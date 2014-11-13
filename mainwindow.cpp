@@ -167,8 +167,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     // create model to store length of paths beetwen cities
-    city_data = new QStandardItemModel(MIN_NUMBER_OF_VERTICES, MIN_NUMBER_OF_VERTICES, this);   // default size
-    fill_new_rows_and_columns_with_zeros(city_data, 0);    // fill new model with default value of zero
+    tableModel = new QStandardItemModel(MIN_NUMBER_OF_VERTICES, MIN_NUMBER_OF_VERTICES, this);   // default size
+    fill_new_rows_and_columns_with_zeros(tableModel, 0);    // fill new model with default value of zero
 
 
     // set the random number generator
@@ -179,8 +179,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // setings properties of ui
     ui->setupUi(this);
     ui->spinBox_number_of_vertices->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);    // set default and min/max values
-    ui->tableView_task->setModel(city_data);    // connect data with ModelView
-
+    ui->tableView->setModel(tableModel);    // connect data with ModelView
+    graph=new Graph(this);
+    connect(tableModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)),graph,SLOT(edgeWeightChanged(QModelIndex,QModelIndex)));
+//    connect()
 }
 
 
@@ -221,7 +223,7 @@ void MainWindow::on_actionTask_triggered()
 
     if (!name_of_file.isNull())  // protect when client click cancel
     {
-        save(name_of_file, city_data);
+        save(name_of_file, tableModel);
     }
 
 }
@@ -232,7 +234,7 @@ void MainWindow::on_actionSolution_triggered()
 
     if (!name_of_file.isNull())  // protect when client click cancel
     {
-       load(name_of_file, city_data);
+       load(name_of_file, tableModel);
     }
 }
 
@@ -292,7 +294,7 @@ void MainWindow::on_spinBox_number_of_vertices_valueChanged(int arg1)
 
 void MainWindow::on_pushButton_random_clicked()
 {
-    fill_cities_with_randoms(city_data, MIN_LENGTH_OF_PATH, MAX_LENGTH_OF_PATH);
+    fill_cities_with_randoms(tableModel, MIN_LENGTH_OF_PATH, MAX_LENGTH_OF_PATH);
 }
 
 
@@ -307,10 +309,10 @@ void MainWindow::on_pushButton_solve_clicked()
 // in other case it's change to size five and next to 50 so you have zeros in some rows and columns
 void MainWindow::on_spinBox_number_of_vertices_editingFinished()
 {
-    int old_size = city_data->rowCount();
+    int old_size = tableModel->rowCount();
 
     int new_size = ui->spinBox_number_of_vertices->value();
 
-    change_number_of_cities(city_data, new_size);
-    fill_new_rows_and_columns_with_zeros(city_data, old_size);
+    change_number_of_cities(tableModel, new_size);
+    fill_new_rows_and_columns_with_zeros(tableModel, old_size);
 }
