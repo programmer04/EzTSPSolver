@@ -153,15 +153,6 @@ void MainWindow::load(const QString& name_of_file, QStandardItemModel* receiver)
     file.close();
 }
 
-
-
-// ################################################################
-
-
-
-
-// constructor end destructor
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -171,23 +162,16 @@ MainWindow::MainWindow(QWidget *parent) :
     tableModel = new QStandardItemModel(MIN_NUMBER_OF_VERTICES, MIN_NUMBER_OF_VERTICES, this);   // default size
     fill_new_rows_and_columns_with_zeros(tableModel, 0);    // fill new model with default value of zero
 
-
-    // set the random number generator
     QTime time = QTime::currentTime();
     qsrand((uint)time.msec());
 
-
-    // setings properties of ui
     ui->setupUi(this);
-    ui->numOfVerticesSpinBox->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);    // set default and min/max values
-    ui->tableView->setModel(tableModel);    // connect data with ModelView
+    ui->numOfVerticesSpinBox->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);
+    ui->tableView->setModel(tableModel);
     graph=new Graph(3,this);
     connect(ui->numOfVerticesSpinBox,SIGNAL(valueChanged(int)),graph,SLOT(resize(int)));
     connect(ui->numOfVerticesSpinBox,SIGNAL(editingFinished()),graph,SLOT(resize()));
     connect(tableModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)),graph,SLOT(edgeWeightChanged(QModelIndex,QModelIndex)));
-
-    qDebug()<<ui->numOfVerticesSpinBox->value();
-//    connect(ui->pushButton_solve,SIGNAL(clicked()),graph,SLOT(printAdjacencyMatrix()));
 }
 
 
