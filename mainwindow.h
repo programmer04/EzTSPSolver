@@ -59,7 +59,7 @@ private slots:
 
 
 
-    void on_spinBox_number_of_vertices_editingFinished();
+    void on_numOfVerticesSpinBox_editingFinished();
 
 private:
 

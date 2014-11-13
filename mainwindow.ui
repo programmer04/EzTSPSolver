@@ -140,7 +140,7 @@
            </widget>
           </item>
           <item row="1" column="0" colspan="2">
-           <widget class="QSpinBox" name="spinBox_number_of_vertices"/>
+           <widget class="QSpinBox" name="numOfVerticesSpinBox"/>
           </item>
          </layout>
         </item>
@@ -150,11 +150,11 @@
        <attribute name="title">
         <string>Solution</string>
        </attribute>
-       <widget class="QTableView" name="tableView_solution">
+       <widget class="QTextBrowser" name="solutionTextBrowser">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>10</y>
+          <x>80</x>
+          <y>30</y>
           <width>256</width>
           <height>192</height>
          </rect>

@@ -2,8 +2,9 @@
 #include "ui_mainwindow.h"
 
 
-
-
+#include <QDebug>
+#include <utility>
+#include <vector>
 // private functions
 
 // return random number from a specific range
@@ -178,11 +179,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // setings properties of ui
     ui->setupUi(this);
-    ui->spinBox_number_of_vertices->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);    // set default and min/max values
+    ui->numOfVerticesSpinBox->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);    // set default and min/max values
     ui->tableView->setModel(tableModel);    // connect data with ModelView
-    graph=new Graph(this);
+    graph=new Graph(3,this);
+    connect(ui->numOfVerticesSpinBox,SIGNAL(valueChanged(int)),graph,SLOT(resize(int)));
+    connect(ui->numOfVerticesSpinBox,SIGNAL(editingFinished()),graph,SLOT(resize()));
     connect(tableModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)),graph,SLOT(edgeWeightChanged(QModelIndex,QModelIndex)));
-//    connect()
+
+    qDebug()<<ui->numOfVerticesSpinBox->value();
+//    connect(ui->pushButton_solve,SIGNAL(clicked()),graph,SLOT(printAdjacencyMatrix()));
 }
 
 
@@ -301,17 +306,28 @@ void MainWindow::on_pushButton_random_clicked()
 
 void MainWindow::on_pushButton_solve_clicked()
 {
-
+    //do 11 wierzcholkow
+    ui->tabWidget->setCurrentIndex(1);
+    std::pair<int,std::vector<int> > ans=graph->bruteForce();
+    QString solutionText;
+    solutionText+="Algo: brute force, min tour cost: ";
+    solutionText+=QString::number(ans.first);
+    solutionText+="\nBest tour: ";
+    for(auto it=ans.second.begin();it!=ans.second.end();it++){
+        solutionText+=QString::number(*it);
+        solutionText+=" ";
+    }
+    ui->solutionTextBrowser->setPlainText(solutionText);
 }
 
 // spinbox
 // you have to accept changes by pressing enter (avoid bug when decrease fill with randoms tab from 100 to 50)
 // in other case it's change to size five and next to 50 so you have zeros in some rows and columns
-void MainWindow::on_spinBox_number_of_vertices_editingFinished()
+void MainWindow::on_numOfVerticesSpinBox_editingFinished()
 {
     int old_size = tableModel->rowCount();
 
-    int new_size = ui->spinBox_number_of_vertices->value();
+    int new_size = ui->numOfVerticesSpinBox->value();
 
     change_number_of_cities(tableModel, new_size);
     fill_new_rows_and_columns_with_zeros(tableModel, old_size);
