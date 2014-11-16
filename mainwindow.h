@@ -39,6 +39,7 @@ private slots:
 
     void on_actionSettings_triggered();
 
+
     // ######################################
 
 
@@ -47,7 +48,7 @@ private slots:
     // #####################################
 
     // spinbox
-   // void on_spinBox_number_of_vertices_valueChanged(int arg1);
+
     // #####################################
 
 
@@ -59,7 +60,9 @@ private slots:
 
 
 
-    void on_numOfVerticesSpinBox_editingFinished();
+    // void on_numOfVerticesSpinBox_editingFinished();
+
+    void on_numOfVerticesSpinBox_valueChanged(int arg1);
 
 private:
 
@@ -81,9 +84,11 @@ private:
 
     void change_number_of_cities(QStandardItemModel* tableModel, const int& new_size);
 
-    void save(const QString& name_of_file, const QStandardItemModel* data_to_save);
+    void save_task(const QString& name_of_file, const QStandardItemModel* data_to_save);
 
-    void load(const QString& name_of_file, QStandardItemModel* receiver);
+    void load_task(const QString& name_of_file, QStandardItemModel* city_data);
+
+    void save_solution(const QString& name_of_file, const QString& data_to_save);
 
 
 

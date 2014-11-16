@@ -55,11 +55,12 @@ void Graph::resize()
 
 void Graph::edgeWeightChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    if(topLeft.row()>=size or topLeft.column()>=size) resize();
+    if(topLeft.row()>=size || topLeft.column()>=size) resize();
     adj[topLeft.row()][topLeft.column()]=topLeft.data().toInt();
 }
 
 void Graph::resize(int newSize)
 {
     potentialNewSize=newSize;
+
 }

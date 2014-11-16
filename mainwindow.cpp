@@ -1,10 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
 #include <QDebug>
 #include <utility>
 #include <vector>
+
 // private functions
 
 // return random number from a specific range
@@ -21,7 +21,6 @@ void MainWindow::disable_editing_item(QStandardItem* item)
     flags &= ~Qt::ItemIsEditable;   // putting mask (with nagation) on flags
     item->setFlags(flags);
 }
-
 
 
 void MainWindow::fill_new_rows_and_columns_with_zeros(QStandardItemModel* city_data, const int& old_size)
@@ -49,6 +48,7 @@ void MainWindow::fill_new_rows_and_columns_with_zeros(QStandardItemModel* city_d
 
 
 }
+
 
 
 // slow for 1 000 of cells
@@ -101,8 +101,25 @@ void MainWindow::change_number_of_cities(QStandardItemModel* city_data, const in
 
 }
 
+void MainWindow::save_solution(const QString &name_of_file, const QString &data_to_save)
+{
+    QFile file(name_of_file);
 
-void MainWindow::save(const QString& name_of_file, const QStandardItemModel* data_to_save)
+    if(file.open(QIODevice::WriteOnly))
+    {
+        QTextStream output(&file);
+
+        output << data_to_save;
+    }
+    else    // when we can't open file for writing
+    {
+        return;
+    }
+
+    file.close();
+}
+
+void MainWindow::save_task(const QString& name_of_file, const QStandardItemModel* data_to_save)
 {
     QFile file(name_of_file);
 
@@ -119,31 +136,66 @@ void MainWindow::save(const QString& name_of_file, const QStandardItemModel* dat
 
             for (int j = 0; j < size; ++j) {
 
-               output << data_to_save->item(i,j)->text();
-               output << " ";
+                output << data_to_save->item(i,j)->text();
+                output << " ";
             }
 
             output << "\n";
-       }
+        }
 
     }
     else    // when we can't open file for writing
     {
-       return;
+        return;
     }
 
     file.close();
 }
 
-
-// TO DO
-void MainWindow::load(const QString& name_of_file, QStandardItemModel* receiver)
+void MainWindow::load_task(const QString& name_of_file, QStandardItemModel* city_data)
 {
     QFile file(name_of_file);
 
     if(file.open(QIODevice::ReadOnly))
     {
-       // TO DO
+       QTextStream input(&file);
+
+       int size = input.readLine().toInt();     // of matrix in input
+
+       change_number_of_cities(city_data, size);
+
+
+
+       // I don't know how to send a signal of changing size to your slot resize()
+
+       int i = 0;   // index for rows
+       while (!input.atEnd()) {
+
+           QString line = input.readLine();
+           QStringList fields = line.split(' ');
+
+           // for columns
+           for (int j = 0; j < size; ++j) {
+
+
+               QModelIndex index = city_data->index(i, j, QModelIndex());
+
+               if (i == j) // if on diagonal
+               {
+                    disable_editing_item(city_data->itemFromIndex(index));
+               }
+
+
+               city_data->setData(index, fields.takeFirst().toInt());
+           }
+
+           i++; // go to the next row
+
+
+           }
+
+
+
     }
     else    // when we can't open file for saving
     {
@@ -153,6 +205,8 @@ void MainWindow::load(const QString& name_of_file, QStandardItemModel* receiver)
     file.close();
 }
 
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -161,6 +215,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // create model to store length of paths beetwen cities
     tableModel = new QStandardItemModel(MIN_NUMBER_OF_VERTICES, MIN_NUMBER_OF_VERTICES, this);   // default size
     fill_new_rows_and_columns_with_zeros(tableModel, 0);    // fill new model with default value of zero
+    graph=new Graph(3,this);
 
     QTime time = QTime::currentTime();
     qsrand((uint)time.msec());
@@ -168,9 +223,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->numOfVerticesSpinBox->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);
     ui->tableView->setModel(tableModel);
-    graph=new Graph(3,this);
+
     connect(ui->numOfVerticesSpinBox,SIGNAL(valueChanged(int)),graph,SLOT(resize(int)));
-    connect(ui->numOfVerticesSpinBox,SIGNAL(editingFinished()),graph,SLOT(resize()));
+   // connect(ui->numOfVerticesSpinBox,SIGNAL(editingFinished()),graph,SLOT(resize()));
     connect(tableModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)),graph,SLOT(edgeWeightChanged(QModelIndex,QModelIndex)));
 }
 
@@ -179,10 +234,9 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
-    // delete city_data;   // probably it isn't necessary because Qt do it with deleting ui
 }
 
-// ################################################################
+
 
 
 
@@ -192,7 +246,6 @@ void MainWindow::on_actionAbout_EzTSPSolver_triggered()
 {
     QMessageBox::information(this,"About EzTSPSolver ", "Version:\nRelease date:\nAuthors:\nLicencion:\n");
 }
-
 
 void MainWindow::on_actionAbout_Qt_triggered()
 {
@@ -205,6 +258,7 @@ void MainWindow::on_actionSettings_triggered()
 }
 
 
+
 // save and load
 void MainWindow::on_actionTask_triggered()
 {
@@ -212,7 +266,7 @@ void MainWindow::on_actionTask_triggered()
 
     if (!name_of_file.isNull())  // protect when client click cancel
     {
-        save(name_of_file, tableModel);
+        save_task(name_of_file, tableModel);
     }
 
 }
@@ -223,7 +277,7 @@ void MainWindow::on_actionSolution_triggered()
 
     if (!name_of_file.isNull())  // protect when client click cancel
     {
-       load(name_of_file, tableModel);
+       save_solution(name_of_file, ui->solutionTextBrowser->toPlainText());
     }
 }
 
@@ -245,7 +299,7 @@ void MainWindow::on_actionLoad_triggered()
 
     if (!name_of_file.isNull())  // protect when client click cancel
     {
-        // function to take carry of file
+        load_task(name_of_file, tableModel);
     }
 }
 
@@ -264,17 +318,16 @@ void MainWindow::on_comboBox_alghoritm_currentIndexChanged(const QString &arg1)
 
 
 // spinbox
-/*  change immediatelly
-void MainWindow::on_spinBox_number_of_vertices_valueChanged(int arg1)
+void MainWindow::on_numOfVerticesSpinBox_valueChanged(int arg1)
 {
 
-    int old_size = city_data->rowCount();
+    int old_size = tableModel->rowCount();
 
-    change_number_of_cities(city_data, arg1);
-    fill_new_rows_and_columns_with_zeros(city_data, old_size);
+    change_number_of_cities(tableModel, arg1);
+    fill_new_rows_and_columns_with_zeros(tableModel, old_size);
 
 }
-*/
+
 
 // ##########################################################
 
@@ -292,21 +345,22 @@ void MainWindow::on_pushButton_solve_clicked()
 {
     //do 11 wierzcholkow
     ui->tabWidget->setCurrentIndex(1);
-    std::pair<int,std::vector<int> > ans=graph->bruteForce();
+
+    std::pair<int, std::vector<int> > ans = graph->bruteForce();
+
     QString solutionText;
-    solutionText+="Algo: brute force, min tour cost: ";
-    solutionText+=QString::number(ans.first);
-    solutionText+="\nBest tour: ";
-    for(auto it=ans.second.begin();it!=ans.second.end();it++){
-        solutionText+=QString::number(*it);
-        solutionText+=" ";
+    solutionText += "Algo: brute force, min tour cost: ";
+    solutionText += QString::number(ans.first);
+    solutionText += "\nBest tour: ";
+    for(auto it = ans.second.begin(); it != ans.second.end(); it++){
+        solutionText += QString::number(*it);
+        solutionText += " ";
     }
+
     ui->solutionTextBrowser->setPlainText(solutionText);
 }
 
-// spinbox
-// you have to accept changes by pressing enter (avoid bug when decrease fill with randoms tab from 100 to 50)
-// in other case it's change to size five and next to 50 so you have zeros in some rows and columns
+/*
 void MainWindow::on_numOfVerticesSpinBox_editingFinished()
 {
     int old_size = tableModel->rowCount();
@@ -316,3 +370,6 @@ void MainWindow::on_numOfVerticesSpinBox_editingFinished()
     change_number_of_cities(tableModel, new_size);
     fill_new_rows_and_columns_with_zeros(tableModel, old_size);
 }
+*/
+
+
