@@ -7,8 +7,10 @@
 #include <QFileDialog>
 #include <QTime>
 #include <QTextStream>
+#include <QItemDelegate>
 
 #include "graph.h"
+//#include "delegate.h"
 
 namespace Ui {
 class MainWindow;
@@ -73,6 +75,7 @@ private:
     Graph* graph;
     Ui::MainWindow *ui;
     QStandardItemModel* tableModel;  // pointer to data for TableView
+    //Delegate_validation* validation_delegate;
 
     int get_random_number(const int& low, const int& high);
 
