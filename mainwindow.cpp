@@ -83,6 +83,7 @@ void MainWindow::change_number_of_cities(QStandardItemModel* city_data, const in
 
     // it doesn't matter what I take, because number of rows == number of columns
     int old_size = city_data->rowCount();
+    graph->resize(new_size);
 
 
     int size_change = abs(old_size - new_size);
@@ -223,9 +224,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->numOfVerticesSpinBox->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);
     ui->tableView->setModel(tableModel);
-
-    connect(ui->numOfVerticesSpinBox,SIGNAL(valueChanged(int)),graph,SLOT(resize(int)));
-   // connect(ui->numOfVerticesSpinBox,SIGNAL(editingFinished()),graph,SLOT(resize()));
     connect(tableModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)),graph,SLOT(edgeWeightChanged(QModelIndex,QModelIndex)));
 }
 
@@ -322,7 +320,6 @@ void MainWindow::on_numOfVerticesSpinBox_valueChanged(int arg1)
 {
 
     int old_size = tableModel->rowCount();
-
     change_number_of_cities(tableModel, arg1);
     fill_new_rows_and_columns_with_zeros(tableModel, old_size);
 

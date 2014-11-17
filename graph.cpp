@@ -7,7 +7,6 @@ Graph::Graph(int size,QObject *parent) :
     QObject(parent)
 {
     potentialNewSize=size;
-    resize();
 }
 
 std::pair<int, std::vector<int> > Graph::bruteForce()
@@ -44,23 +43,16 @@ void Graph::printAdjacencyMatrix()
     }
 }
 
-void Graph::resize()
-{
-    size=potentialNewSize;
-    adj.resize(size);
-    for(std::vector<std::vector<int> >::iterator it=adj.begin(); it!=adj.end();++it)
-       it->resize(size);
-
-}
-
 void Graph::edgeWeightChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    if(topLeft.row()>=size || topLeft.column()>=size) resize();
+//    if(topLeft.row()>=size || topLeft.column()>=size) resize();
     adj[topLeft.row()][topLeft.column()]=topLeft.data().toInt();
 }
 
 void Graph::resize(int newSize)
 {
-    potentialNewSize=newSize;
-
+    size=newSize;
+    adj.resize(size);
+    for(std::vector<std::vector<int> >::iterator it=adj.begin(); it!=adj.end();++it)
+       it->resize(size);
 }

@@ -17,7 +17,6 @@ public slots:
     void edgeWeightChanged(const QModelIndex& topLeft,const QModelIndex& bottomRight);
     void resize(int newSize);
     void printAdjacencyMatrix();//for debugging purposes only
-    void resize();
 private:
     int size;
     int potentialNewSize;
