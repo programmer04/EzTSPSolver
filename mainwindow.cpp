@@ -126,7 +126,7 @@ void MainWindow::change_number_of_cities(QStandardItemModel* city_data, const in
 
 void MainWindow::save_solution(const QString &name_of_file, const QString &data_to_save)
 {
-    QFile file(name_of_file);
+    QFile file(name_of_file);    
 
     if(file.open(QIODevice::WriteOnly))
     {
@@ -185,11 +185,10 @@ void MainWindow::load_task(const QString& name_of_file, QStandardItemModel* city
 
        int size = input.readLine().toInt();     // of matrix in input
 
-       change_number_of_cities(city_data, size);
+       ui->numOfVerticesSpinBox->setValue(size);    // change number of vertices in spinbox
+       // by changing it we call void MainWindow::on_numOfVerticesSpinBox_valueChanged(int arg1)
 
 
-
-       // I don't know how to send a signal of changing size to your slot resize()
 
        int i = 0;   // index for rows
        while (!input.atEnd()) {
@@ -238,7 +237,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // create model to store length of paths beetwen cities
     tableModel = new QStandardItemModel(MIN_NUMBER_OF_VERTICES, MIN_NUMBER_OF_VERTICES, this);   // default size
     fill_new_rows_and_columns_with_zeros(tableModel, 0);    // fill new model with default value of zero
-    graph=new Graph(3,this);
+    graph = new Graph(3,this);
+
 
     QTime time = QTime::currentTime();
     qsrand((uint)time.msec());
@@ -246,8 +246,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     //ui->numOfVerticesSpinBox->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);
     ui->tableView->setModel(tableModel);
+
+    //validation_delegate = new Delegate_validation(this);
+    //ui->tableView->setItemDelegate(validation_delegate);
+
     connect(tableModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)),graph,SLOT(edgeWeightChanged(QModelIndex,QModelIndex)));
 }
+
 
 
 
