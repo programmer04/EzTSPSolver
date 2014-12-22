@@ -56,7 +56,36 @@ void MainWindow::fill_cities_with_randoms(QStandardItemModel* city_data, const i
 {
     // it doesn't matter what I take, because number of rows == number of columns
     int size = city_data->rowCount();
+   std:: vector<std::vector<int> > tab(size,std::vector<int>(size));
+//    memset(tab,-1,sizeof(tab));
+    if(ui->symetricCheckBox->isChecked()){
+        for (int i = 0; i < size; ++i) {
+            for (int j = i; j < size; ++j) {
+                QModelIndex index = city_data->index(i, j, QModelIndex());
 
+                if (i == j) // if on diagonal
+                {
+                   continue;    // because we've already zeros
+                }
+
+                int num=get_random_number(low, high);
+                city_data->setData(index, num);    // put randoms
+                tab[i][j]=num;
+//                worsk increadibly slow when i do this
+//                index=city_data->index(j,i,QModelIndex());
+//                city_data->setData(index,num);
+            }
+        }
+        for(int i=0;i<size;++i)
+            for(int j=0;j<i;j++)
+            {
+                QModelIndex index = city_data->index(i, j, QModelIndex());
+                if(i!=j){
+                    city_data->setData(index,tab[j][i]);
+                }
+            }
+    }
+    else
     for (int i = 0; i < size; ++i) {
 
         for (int j = 0; j < size; ++j) {
@@ -80,26 +109,19 @@ void MainWindow::fill_cities_with_randoms(QStandardItemModel* city_data, const i
 
 void MainWindow::change_number_of_cities(QStandardItemModel* city_data, const int& new_size)
 {
-
-    // it doesn't matter what I take, because number of rows == number of columns
     int old_size = city_data->rowCount();
     graph->resize(new_size);
-
-
     int size_change = abs(old_size - new_size);
-
-
     if (new_size > old_size)   // increase number of cities
     {
         city_data->insertRows(old_size, size_change);
         city_data->insertColumns(old_size, size_change);
-
-    }else if(new_size < old_size)  // decrease number of cities
+    }
+    else if(new_size < old_size)  // decrease number of cities
     {
         city_data->removeRows(new_size, size_change);
         city_data->removeColumns(new_size, size_change);
     }
-
 }
 
 void MainWindow::save_solution(const QString &name_of_file, const QString &data_to_save)
@@ -222,7 +244,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qsrand((uint)time.msec());
 
     ui->setupUi(this);
-    ui->numOfVerticesSpinBox->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);
+    //ui->numOfVerticesSpinBox->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);
     ui->tableView->setModel(tableModel);
     connect(tableModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)),graph,SLOT(edgeWeightChanged(QModelIndex,QModelIndex)));
 }
