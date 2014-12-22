@@ -1,6 +1,6 @@
 EzTSPSolver
 ===========
 
-Application which solve TSP
+TSP solver in Qt
 
 It is a part of beta version.
