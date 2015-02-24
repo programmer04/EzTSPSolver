@@ -244,7 +244,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qsrand((uint)time.msec());
 
     ui->setupUi(this);
-    //ui->numOfVerticesSpinBox->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);
+    ui->numOfVerticesSpinBox->setRange(MIN_NUMBER_OF_VERTICES, MAX_NUMBER_OF_VERTICES);
     ui->tableView->setModel(tableModel);
 
     //validation_delegate = new Delegate_validation(this);
